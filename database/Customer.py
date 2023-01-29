@@ -5,10 +5,10 @@ class Customer(Database):
     def __init__(self) -> None:
         super().__init__()
         self.table = "customer"
-        self.column_id = "c_id"
-        self.column_name = "c_name"
-        self.connect()
+        self.column_id = "id"
+        self.column_name = "name"
         
+        self.connect()
         self.mycursor = self.mydb.cursor()
 
     def get_all(self):

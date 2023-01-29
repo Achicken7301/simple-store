@@ -67,10 +67,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.add_p2invoice.clicked.connect(self.on_add_p2invoice)
 
     def on_add_p2invoice(self):
+        # Create a buffer for query
+        query = dict()
+        
         if self.cus_choosed:
             dlg = AddProduct2Invoice()
             if dlg.exec():
-                print("OK")
+                query["c_name"] = self.cus_name
+                query["p_name"] = dlg.ui.p_name_input.text()
+                query["p_quantity"] = int(dlg.ui.p_quantity_input.text())
+
+                # Check if new price
+                if len(dlg.ui.new_unit_price_input.text()):
+                    query["p_unit_price"] = float(
+                        dlg.p.de_seperated(dlg.ui.new_unit_price_input.text())
+                    )
+                else:
+                    query["p_unit_price"] = float(
+                        dlg.p.de_seperated(dlg.ui.unit_price_input.text())
+                    )
+                # print(query)
+                dlg.addp2Invoice(query)
+                # update Invoice
+                self.update_table_widget(query["c_name"])
+
             else:
                 print("Cancel")
         else:
@@ -152,7 +172,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_p_list_widget(self, text):
         print(f"Product '{text.text()}' is selected")
-
         p = Product()
         p_infos = p.get_per_product(text.text())
         for p_info in p_infos:
@@ -170,14 +189,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_cus_list_widget(self, text):
         # Add Condition for p2Invoice
         self.cus_choosed = True
+        self.cus_name = text.text()  # Use this to query
 
         print(f"Customer '{text.text()}' is selected")
-        self.cus_name = text.text()
         self.ui.invoice_name.setText(f"# Tên Khách Hàng: {text.text()}")
 
         # Run SQL QUERY FROM INVOICE table
+        self.update_table_widget(text.text())
+
+    def update_table_widget(self, name):
         invoice = Invoice()
-        invoices = invoice.get(text.text())
+        invoices = invoice.get(name)
 
         # Add data to table widget
         labels = ["Tên sản phẩm", "Đơn giá (VND)", "Số lượng", "Ngày mua"]
