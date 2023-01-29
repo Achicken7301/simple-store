@@ -1,8 +1,25 @@
-SELECT customer.customer_name, product.product_name, invoice.curr_unit_price, invoice.quantity, invoice.create_date
+INSERT INTO invoice AS i
+
+SELECT c.c_name p.p_name FROM invoice AS i
+INNER JOIN customer AS c ON i.cus_id = i.c_id
+INNER JOIN product AS p ON i.p_id = i.product_id
+WHERE c.c_name = 'test'
+
+INSERT INTO invoice (invoice.cus_id, invoice.p_id, invoice.curr_unit_price, invoice.quantity)
+VALUES ((SELECT id FROM customer WHERE NAME = 'test'), 
+	(SELECT product_id FROM product WHERE NAME = 'Denise Contreras'),
+	877000, 
+	1)
+
+
+SELECT id FROM customer WHERE NAME = 'test'
+SELECT product_id FROM product WHERE NAME = 'Gene Craig'
+
+SELECT invoice.curr_unit_price * invoice.quantity AS total_price
 FROM invoice
-INNER JOIN customer ON invoice.cus_id = customer.customer_id
+INNER JOIN customer ON invoice.cus_id = customer.c_id
 INNER JOIN product ON invoice.p_id = product.product_id
-WHERE customer.customer_name = 'Aaron Williamson'
+WHERE customer.c_name = 'Aaron Williamson'
 
 
 INSERT INTO invoice (cus_id, p_id, curr_unit_price)

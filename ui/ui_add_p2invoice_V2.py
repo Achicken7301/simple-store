@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_p2Invoice(object):
     def setupUi(self, p2Invoice):
         p2Invoice.setObjectName("p2Invoice")
-        p2Invoice.resize(381, 161)
+        p2Invoice.resize(527, 193)
         self.gridLayout = QtWidgets.QGridLayout(p2Invoice)
         self.gridLayout.setObjectName("gridLayout")
         self.label = QtWidgets.QLabel(p2Invoice)
@@ -81,7 +81,7 @@ class Ui_p2Invoice(object):
         p2Invoice.setWindowTitle(_translate("p2Invoice", "Thêm sản phẩm vào hóa đơn"))
         self.label.setText(_translate("p2Invoice", "**Tên sản phẩm**"))
         self.label_2.setText(_translate("p2Invoice", "**Số lượng**"))
-        self.label_3.setText(_translate("p2Invoice", "**Đơn giá**"))
+        self.label_3.setText(_translate("p2Invoice", "**Đơn giá (VND)**"))
         self.label_5.setText(_translate("p2Invoice", "**Ngày mua**"))
         self.create_date.setDisplayFormat(_translate("p2Invoice", "dd/MM/yyyy h:mm AP"))
         self.label_4.setText(_translate("p2Invoice", "**Giá mới (nếu có)**"))

@@ -1,3 +1,6 @@
-data = [('Amy Wells', 313000, '1')]
+price = "1,000,000"
 
-print(data[0][1])
+string = ''.join(price.split(','))
+
+print(type(int(string)))
+print(int(string))

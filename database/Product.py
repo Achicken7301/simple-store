@@ -4,22 +4,24 @@ from database.Database import Database
 class Product(Database):
     def __init__(self) -> None:
         super().__init__()
-        self.connect()
 
         self.table = "product"
         self.column_id = "product_id"
-        self.column_name = "p_name"
-        self.column_unit_price = "p_unit_price"
-        self.column_location = "p_location"
+        self.column_name = "name"
+        self.column_unit_price = "unit_price"
+        self.column_location = "location"
         self.column_last_update = "last_update"
-        
+
         self.seperated_by_bold = "**{:,} VND**"
-        self.seperated_by = "{:,} VND"
-        
+        self.seperated_by = "{:,}"
+
+        self.connect()
         self.mycursor = self.mydb.cursor()
 
+    def de_seperated(self, price):
+        return "".join(price.split(","))
+
     def get_all_p_names(self):
-        
         self.mycursor.execute(f"""SELECT {self.column_name} FROM {self.table}""")
         myresult = self.mycursor.fetchall()
         return myresult
