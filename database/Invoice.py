@@ -3,7 +3,7 @@ from database.Customer import Customer
 from database.Product import Product
 
 
-class Invoice(Customer, Product):
+class Invoice(Database):
     def __init__(self) -> None:
         super().__init__()
         self.connect()
@@ -16,6 +16,8 @@ class Invoice(Customer, Product):
         self.column_paid_date = "paid_date"
 
         self.interest_rate = 0.03
+        self.seperated_by_bold = "**{:,} VND**"
+        self.seperated_by = "{:,.0f}"
 
         self.c = Customer()
         self.p = Product()
@@ -25,14 +27,19 @@ class Invoice(Customer, Product):
 
     # TODO: Inefficient query, need to be optimize for large amount of data
     def get(self, cus_name):
+        i = Invoice()
         self.mycursor.execute(
-            f"""SELECT {self.p.table}.{self.p.column_name}, {self.table}.{self.column_curr_unit_price}, {self.table}.{self.column_quantity}, {self.table}.{self.column_create_date}
-                            FROM {self.table}
-                            INNER JOIN {self.c.table} ON {self.table}.{self.column_FK_cus_id} = {self.c.table}.{self.c.column_id}
-                            INNER JOIN {self.p.table} ON {self.table}.{self.column_FK_p_id} = {self.p.table}.{self.p.column_id}
-                            WHERE {self.c.table}.{self.c.column_name} = '{cus_name}'
-                            ORDER BY {self.column_create_date} ASC
-                            """
+            f"""SELECT  {self.p.table}.{self.p.column_name}, 
+                        {self.table}.{self.column_curr_unit_price}, 
+                        {self.table}.{self.column_quantity}, 
+                        {self.table}.{self.column_quantity} * {self.table}.{self.column_curr_unit_price}, 
+                        {self.table}.{self.column_create_date}
+                FROM {self.table}
+                INNER JOIN {self.c.table} ON {self.table}.{self.column_FK_cus_id} = {self.c.table}.{self.c.column_id}
+                INNER JOIN {self.p.table} ON {self.table}.{self.column_FK_p_id} = {self.p.table}.{self.p.column_id}
+                WHERE {self.c.table}.{self.c.column_name} = '{cus_name}' AND {i.table}.{i.column_paid_date} IS NULL
+                ORDER BY {self.column_create_date} ASC
+                """
         )
         myresult = self.mycursor.fetchall()
         return myresult
@@ -40,7 +47,7 @@ class Invoice(Customer, Product):
     def addP2Invoice(self, query_data: dict):
         # INSERT AND UPDATE NEW PRICE
         i = Invoice()
-        insert_query = f"""INSERT INTO {i.table}({i.table}.{i.column_FK_cus_id}, 
+        insert_query = f"""INSERT INTO {i.table}    ({i.table}.{i.column_FK_cus_id}, 
                                                     {i.table}.{i.column_FK_p_id}, 
                                                     {i.table}.{i.column_curr_unit_price}, 
                                                     {i.table}.{i.column_quantity},
@@ -57,3 +64,18 @@ class Invoice(Customer, Product):
         self.mycursor.execute(insert_query)
         self.mycursor.execute(update_query)
         self.mydb.commit()
+
+    def updateTotal(self, name: str):
+        i = Invoice()
+        query = f"""
+            SELECT
+            SUM({i.table}.{i.column_curr_unit_price} * {i.table}.{i.column_quantity}) AS total_price,
+            SUM((({i.table}.{i.column_curr_unit_price} * {i.table}.{i.column_quantity}) * (DATEDIFF(CURRENT_TIMESTAMP, {i.table}.{i.column_create_date})/30) * {self.interest_rate})) AS Total_interest
+            FROM {i.table}
+            INNER JOIN {self.c.table} ON {i.table}.{i.column_FK_cus_id} = {self.c.table}.{self.c.column_id}
+            INNER JOIN {self.p.table} ON {i.table}.{i.column_FK_p_id} = {self.p.table}.{self.p.column_id}
+            WHERE customer.name = '{name}' AND {i.column_paid_date} IS NULL
+            """
+        self.mycursor.execute(query)
+        myresult = self.mycursor.fetchall()
+        return myresult

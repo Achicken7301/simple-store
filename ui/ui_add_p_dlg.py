@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\banhb\Documents\Projects\2023\NamKhangStore\ui\add_p_dlg.ui'
+# Form implementation generated from reading ui file 'd:\banhb\Documents\Projects\2023\simple-store\ui\add_p_dlg.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #

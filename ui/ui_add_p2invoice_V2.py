@@ -50,6 +50,7 @@ class Ui_p2Invoice(object):
         self.label_5.setObjectName("label_5")
         self.gridLayout.addWidget(self.label_5, 3, 0, 1, 1)
         self.create_date = QtWidgets.QDateTimeEdit(p2Invoice)
+        self.create_date.setLocale(QtCore.QLocale(QtCore.QLocale.Vietnamese, QtCore.QLocale.Vietnam))
         self.create_date.setCalendarPopup(True)
         self.create_date.setObjectName("create_date")
         self.gridLayout.addWidget(self.create_date, 3, 1, 1, 1)

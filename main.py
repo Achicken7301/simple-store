@@ -1,6 +1,11 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QEvent, QObject
-from PyQt5.QtWidgets import QMenu, QMessageBox, QTableWidgetItem, QDialogButtonBox
+from PyQt5.QtWidgets import (
+    QMenu,
+    QTableWidgetItem,
+    QDialogButtonBox,
+    QHeaderView,
+)
 import sys
 
 # Load ui
@@ -69,7 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_add_p2invoice(self):
         # Create a buffer for query
         query = dict()
-        
+
         if self.cus_choosed:
             dlg = AddProduct2Invoice()
             if dlg.exec():
@@ -87,16 +92,19 @@ class MainWindow(QtWidgets.QMainWindow):
                     query["p_unit_price"] = float(
                         dlg.p.de_seperated(dlg.ui.unit_price_input.text())
                     )
-                
+
                 dlg.addp2Invoice(query)
+
                 # update Invoice
                 self.update_table_widget(query["c_name"])
+                # Update total
+                self.update_total(query["c_name"])
 
             else:
                 print("Cancel")
         else:
             WarningView(
-                "Vui lòng chọn khách hàng!!!\nDouble Click vào bảng danh sách khách hàng."
+                "Vui lòng chọn khách hàng!!!\nNhấp chuột 2 lần vào bảng danh sách khách hàng."
             )
 
     # https://www.youtube.com/watch?v=2Ie-EBwJOZU
@@ -190,24 +198,61 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_cus_list_widget(self, text):
         # Add Condition for p2Invoice
         self.cus_choosed = True
-        self.cus_name = text.text()  # Use this to query
+        self.cus_name = text.text()  # Use this to query p2Invoice
 
+        # UI setup
         print(f"Customer '{text.text()}' is selected")
-        self.ui.invoice_name.setText(f"# Tên Khách Hàng: {text.text()}")
+        self.ui.invoice_name.setText(f"# Sổ nợ của {text.text()}")
 
         # Run SQL QUERY FROM INVOICE table
+        self.update_total(text.text())
         self.update_table_widget(text.text())
+
+    def update_total(self, name):
+        i = Invoice()
+        [(total_p, total_interest)] = i.updateTotal(name)
+        
+        # if Customer did bought anything.
+        if total_interest is None and total_p is None:
+            [(total_p, total_interest)] = [(0, 0)]
+        """
+        totals = Invoice().updateTotal(name)    #OUTPUT: [(44925000.0, 23221314.99940131)]
+        print(totals[0][0])                     #OUTPUT: 44925000.0
+        print(totals[0][1])                     #OUTPUT: 23221314.99940131
+        """
+        
+        # Setup UI
+        self.ui.total_p.setText(f"# {i.seperated_by.format(total_p)} VND")
+        self.ui.total_interest.setText(f"# {i.seperated_by.format(total_interest)} VND")
+        self.ui.total.setText(
+            f"# {i.seperated_by.format(total_p + total_interest)} VND"
+        )
 
     def update_table_widget(self, name):
         invoice = Invoice()
         invoices = invoice.get(name)
 
         # Add data to table widget
-        labels = ["Tên sản phẩm", "Đơn giá (VND)", "Số lượng", "Ngày mua"]
+        labels = [
+            "Tên sản phẩm",
+            "Đơn giá (VND)",
+            "Số lượng",
+            "Tổng (Đơn giá * Số lượng)",
+            "Ngày mua",
+        ]
         self.ui.invoice_table.setRowCount(0)
         self.ui.invoice_table.setColumnCount(len(labels))
         self.ui.invoice_table.setHorizontalHeaderLabels(labels)
         self.ui.invoice_table.setSortingEnabled(True)
+
+        self.ui.invoice_table.horizontalHeader().setSectionResizeMode(
+            4, QHeaderView.ResizeToContents
+        )
+
+        for i in range(4):
+            self.ui.invoice_table.horizontalHeader().setSectionResizeMode(
+                i, QHeaderView.Stretch
+            )
 
         # DONT KNOW HOW, BUT IT WORKS https://www.youtube.com/watch?v=_QKVDfVyRbM
         for row_number, row_data in enumerate(invoices):
