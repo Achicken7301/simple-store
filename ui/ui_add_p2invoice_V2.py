@@ -83,5 +83,5 @@ class Ui_p2Invoice(object):
         self.label_2.setText(_translate("p2Invoice", "**Số lượng**"))
         self.label_3.setText(_translate("p2Invoice", "**Đơn giá (VND)**"))
         self.label_5.setText(_translate("p2Invoice", "**Ngày mua**"))
-        self.create_date.setDisplayFormat(_translate("p2Invoice", "dd/MM/yyyy h:mm AP"))
+        self.create_date.setDisplayFormat(_translate("p2Invoice", "d-M-yyyy hh:mm:ss"))
         self.label_4.setText(_translate("p2Invoice", "**Giá mới (nếu có)**"))

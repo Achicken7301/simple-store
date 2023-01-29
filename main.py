@@ -76,6 +76,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 query["c_name"] = self.cus_name
                 query["p_name"] = dlg.ui.p_name_input.text()
                 query["p_quantity"] = int(dlg.ui.p_quantity_input.text())
+                query["i_create_date"] = dlg.ui.create_date.text()
 
                 # Check if new price
                 if len(dlg.ui.new_unit_price_input.text()):
@@ -86,7 +87,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     query["p_unit_price"] = float(
                         dlg.p.de_seperated(dlg.ui.unit_price_input.text())
                     )
-                # print(query)
+                
                 dlg.addp2Invoice(query)
                 # update Invoice
                 self.update_table_widget(query["c_name"])

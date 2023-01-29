@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1045</width>
-    <height>675</height>
+    <width>1106</width>
+    <height>670</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,6 +24,29 @@
       </property>
       <property name="text">
        <string>View Invoice</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="0" column="0" colspan="4">
+     <widget class="QLabel" name="invoice_name">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::MarkdownText</enum>
       </property>
      </widget>
     </item>
@@ -51,29 +74,6 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="3">
-     <spacer name="horizontalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="0" colspan="4">
-     <widget class="QLabel" name="invoice_name">
-      <property name="text">
-       <string/>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::MarkdownText</enum>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="0" colspan="4">
      <widget class="QTableWidget" name="invoice_table"/>
     </item>
@@ -84,7 +84,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1045</width>
+     <width>1106</width>
      <height>26</height>
     </rect>
    </property>
@@ -150,7 +150,7 @@
   <widget class="QDockWidget" name="dockWidget_2">
    <property name="font">
     <font>
-     <pointsize>8</pointsize>
+     <pointsize>13</pointsize>
     </font>
    </property>
    <property name="windowTitle">
