@@ -19,26 +19,38 @@ USE `store`;
 
 -- Dumping structure for table store.customer
 CREATE TABLE IF NOT EXISTS `customer` (
-  `c_id` int(11) NOT NULL AUTO_INCREMENT,
-  `c_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`c_id`) USING BTREE,
-  UNIQUE KEY `customer_name` (`c_name`) USING BTREE
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `customer_name` (`name`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
 -- Dumping structure for table store.invoice
 CREATE TABLE IF NOT EXISTS `invoice` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `cus_id` int(11) NOT NULL,
-  `p_id` int(11) NOT NULL,
-  `curr_unit_price` int(11) unsigned NOT NULL,
-  `create_date` datetime DEFAULT CURRENT_TIMESTAMP,
-  `paid_date` datetime DEFAULT NULL,
+  `create_date` datetime NOT NULL,
+  `pay_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `cus_id` (`cus_id`) USING BTREE,
+  CONSTRAINT `invoice_ibfk_1` FOREIGN KEY (`cus_id`) REFERENCES `customer` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table store.invoice_detail
+CREATE TABLE IF NOT EXISTS `invoice_detail` (
+  `FK_i_id` int(11) NOT NULL,
+  `FK_p_id` int(11) NOT NULL,
   `quantity` int(11) unsigned NOT NULL DEFAULT '1',
-  KEY `cus_id` (`cus_id`),
-  KEY `p_id` (`p_id`),
-  CONSTRAINT `invoice_ibfk_1` FOREIGN KEY (`cus_id`) REFERENCES `customer` (`c_id`),
-  CONSTRAINT `invoice_ibfk_2` FOREIGN KEY (`p_id`) REFERENCES `product` (`product_id`)
+  `curr_unit_price` double unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`FK_i_id`,`FK_p_id`),
+  KEY `FK_invoiceID` (`FK_i_id`) USING BTREE,
+  KEY `FK_productID` (`FK_p_id`) USING BTREE,
+  CONSTRAINT `FK_invoice_detail_invoice` FOREIGN KEY (`FK_i_id`) REFERENCES `invoice` (`id`),
+  CONSTRAINT `FK_invoice_detail_product` FOREIGN KEY (`FK_p_id`) REFERENCES `product` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
@@ -46,9 +58,10 @@ CREATE TABLE IF NOT EXISTS `invoice` (
 -- Dumping structure for table store.product
 CREATE TABLE IF NOT EXISTS `product` (
   `product_id` int(11) NOT NULL AUTO_INCREMENT,
-  `p_unit_price` int(11) DEFAULT NULL,
-  `p_location` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `p_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `unit_price` double DEFAULT NULL,
+  `location` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `last_update` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -57,10 +70,10 @@ CREATE TABLE IF NOT EXISTS `product` (
 
 -- Dumping structure for table store.test
 CREATE TABLE IF NOT EXISTS `test` (
-  `test_id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `test_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `username` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`test_id`),
+  PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
