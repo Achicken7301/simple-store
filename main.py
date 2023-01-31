@@ -5,8 +5,14 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QDialogButtonBox,
     QHeaderView,
+    QLabel,
+    QTableWidget,
+    QVBoxLayout,
+    QWidget,
 )
+
 import sys
+import datetime
 
 # Load ui
 from ui.ui_main import Ui_MainWindow
@@ -96,7 +102,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 dlg.addp2Invoice(query)
 
                 # update Invoice
-                self.update_table_widget(query["c_name"])
+                self.update_invoices_table_widget(query["c_name"])
                 # Update total
                 self.update_total(query["c_name"])
 
@@ -204,14 +210,47 @@ class MainWindow(QtWidgets.QMainWindow):
         print(f"Customer '{text.text()}' is selected")
         self.ui.invoice_name.setText(f"# Sổ nợ của {text.text()}")
 
-        # Run SQL QUERY FROM INVOICE table
-        self.update_total(text.text())
-        self.update_table_widget(text.text())
+        i = Invoice()
+        invoices = i.getAllInvoice(self.cus_name)
+
+        widget = QWidget()
+        self.vbox = QVBoxLayout()
+
+        for invoice_id, invoice_create_date in invoices:
+            print(invoice_id)
+            self.createTemplate(invoice_id, invoice_create_date)
+
+        widget.setLayout(self.vbox)
+        self.ui.scroll_infos.setWidget(widget)
+
+    def createTemplate(self, i_id, i_create_date):
+        # Table setup
+        invoice_table = QTableWidget()
+        invoice_table.setMinimumSize(QtCore.QSize(0, 200))
+        invoice_table.setSortingEnabled(True)
+
+        label_test = QLabel(f"**{i_create_date}**")
+        label_test.setTextFormat(QtCore.Qt.MarkdownText)
+
+        self.vbox.addWidget(label_test)
+        self.vbox.addWidget(invoice_table)
+
+        # Insert data into this template
+        labels = [
+            "Tên sản phẩm",
+            "Đơn giá (VND)",
+            "Số lượng",
+            "Tổng (Đơn giá * Số lượng) VND",
+            # "Ngày mua",
+        ]
+        self.update_table(
+            invoice_table, Invoice().getAllProductFromInvoice(i_id), labels
+        )
 
     def update_total(self, name):
         i = Invoice()
         [(total_p, total_interest)] = i.updateTotal(name)
-        
+
         # if Customer did bought anything.
         if total_interest is None and total_p is None:
             [(total_p, total_interest)] = [(0, 0)]
@@ -220,7 +259,7 @@ class MainWindow(QtWidgets.QMainWindow):
         print(totals[0][0])                     #OUTPUT: 44925000.0
         print(totals[0][1])                     #OUTPUT: 23221314.99940131
         """
-        
+
         # Setup UI
         self.ui.total_p.setText(f"# {i.seperated_by.format(total_p)} VND")
         self.ui.total_interest.setText(f"# {i.seperated_by.format(total_interest)} VND")
@@ -228,40 +267,23 @@ class MainWindow(QtWidgets.QMainWindow):
             f"# {i.seperated_by.format(total_p + total_interest)} VND"
         )
 
-    def update_table_widget(self, name):
-        invoice = Invoice()
-        invoices = invoice.get(name)
+    def update_table(self, table, invoice_data, labels):
+        table.setRowCount(0)
+        table.setColumnCount(len(labels))
+        table.setHorizontalHeaderLabels(labels)
+        table
 
-        # Add data to table widget
-        labels = [
-            "Tên sản phẩm",
-            "Đơn giá (VND)",
-            "Số lượng",
-            "Tổng (Đơn giá * Số lượng)",
-            "Ngày mua",
-        ]
-        self.ui.invoice_table.setRowCount(0)
-        self.ui.invoice_table.setColumnCount(len(labels))
-        self.ui.invoice_table.setHorizontalHeaderLabels(labels)
-        self.ui.invoice_table.setSortingEnabled(True)
+        # table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)
 
-        self.ui.invoice_table.horizontalHeader().setSectionResizeMode(
-            4, QHeaderView.ResizeToContents
-        )
-
-        for i in range(4):
-            self.ui.invoice_table.horizontalHeader().setSectionResizeMode(
-                i, QHeaderView.Stretch
-            )
+        for i in range(len(labels)):
+            table.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
 
         # DONT KNOW HOW, BUT IT WORKS https://www.youtube.com/watch?v=_QKVDfVyRbM
-        for row_number, row_data in enumerate(invoices):
-            self.ui.invoice_table.insertRow(row_number)
+        for row_number, row_data in enumerate(invoice_data):
+            table.insertRow(row_number)
 
             for column_number, data in enumerate(row_data):
-                self.ui.invoice_table.setItem(
-                    row_number, column_number, QTableWidgetItem(str(data))
-                )
+                table.setItem(row_number, column_number, QTableWidgetItem(str(data)))
 
     def on_cus_search_bar(self, text):
         self.ui.cus_list.clear()
