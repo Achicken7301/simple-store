@@ -7,12 +7,13 @@ from PyQt5.QtWidgets import (
     QHeaderView,
     QLabel,
     QTableWidget,
-    QVBoxLayout,
     QWidget,
+    QGridLayout,
 )
 
 import sys
 import datetime
+import docx
 
 # Load ui
 from ui.ui_main import Ui_MainWindow
@@ -71,11 +72,58 @@ class MainWindow(QtWidgets.QMainWindow):
         # Add product btn
         self.ui.add_p.clicked.connect(self.on_add_p)
 
-        """
-        INVOICE
+        """INVOICE
         """
         self.cus_choosed = False
         self.ui.add_p2invoice.clicked.connect(self.on_add_p2invoice)
+        self.ui.export2pdf.clicked.connect(self.on_export2pdf)
+
+    def on_export2pdf(self):
+        # Create an instance of a word document
+        doc = docx.Document()
+        # Add a Title to the document
+        doc.add_heading(f"Công nợ sổ của {self.cus_name}", 0)
+
+        # Table data in a form of list
+        labels = [
+            "Tên sản phẩm",
+            "Đơn giá (VND)",
+            "Số lượng",
+            "Tổng (Đơn giá * Số lượng) VND",
+        ]
+
+        # Adding data from the list to the table
+        for id, create_date in Invoice().getAllInvoice(self.cus_name):
+            [(total_p, months)] = Invoice().getTotalFromInvoice(id)
+            para = doc.add_paragraph()
+            bold_para = para.add_run(
+                f"Hóa đơn ngày: {create_date}\tSố tháng thiếu: {months}"
+            )
+            # bold_para = para.add_run(f"Ngày ngày trả: {create_date}")
+            bold_para.bold = True
+            # Creating a table object
+            table = doc.add_table(rows=1, cols=len(labels))
+            table.style = "TableGrid"
+            # Adding heading in the 1st row of the table
+            row = table.rows[0].cells
+            for i in range(len(labels)):
+                row[i].text = labels[i]
+
+            for i_data in Invoice().getAllProductFromInvoice(id):
+                # Adding a row and then adding data in it.
+                row = table.add_row().cells
+                # # Converting id to string as table can only take string input
+                for i in range(len(i_data)):
+                    row[i].text = str(i_data[i])
+
+            doc.add_paragraph(
+                f"Tổng tiền trong ngày: {Invoice().seperated_by.format(total_p)} VND \t Tiền lãi: {Invoice().seperated_by.format(float(total_p) * float(months)* Invoice().interest_rate)} VND"
+            )
+        # Now save the document to a location
+        doc.save(
+            "D:\\banhb\Documents\Projects\\2023\simple-store\docx template\Invoice.docx"
+        )
+        print("EXPORT SUCCESFULLY")
 
     def on_add_p2invoice(self):
         # Create a buffer for query
@@ -191,13 +239,13 @@ class MainWindow(QtWidgets.QMainWindow):
         p_infos = p.get_per_product(text.text())
         for p_info in p_infos:
             self.ui.p_name.setText(f"# {p_info[0]}")
-            self.ui.p_unit_price.setText(f"**{p.seperated_by.format(p_info[1])}**")
+            # self.ui.p_unit_price.setText(f"**{p.seperated_by.format(p_info[1])}**")
+            self.ui.p_unit_price.setText(f"**{(p_info[1])}**")
             self.ui.p_location.setText(f"**{p_info[2]}**")
 
     def on_p_search_bar(self, text):
         self.ui.p_list.clear()
-        product = Product()
-        products = product.get_p_name(value=text)
+        products = Product().get_p_name(value=text)
         for p in products:
             self.ui.p_list.addItems(p)
 
@@ -208,32 +256,32 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # UI setup
         print(f"Customer '{text.text()}' is selected")
-        self.ui.invoice_name.setText(f"# Sổ nợ của {text.text()}")
+        self.ui.invoice_name.setText(f"# Các hóa đơn thiếu của {text.text()}")
 
-        i = Invoice()
-        invoices = i.getAllInvoice(self.cus_name)
+        invoices = Invoice().getAllInvoice(self.cus_name)
 
         widget = QWidget()
-        self.vbox = QVBoxLayout()
+        self.grid = QGridLayout()
 
         for invoice_id, invoice_create_date in invoices:
-            print(invoice_id)
             self.createTemplate(invoice_id, invoice_create_date)
 
-        widget.setLayout(self.vbox)
+        widget.setLayout(self.grid)
         self.ui.scroll_infos.setWidget(widget)
 
     def createTemplate(self, i_id, i_create_date):
         # Table setup
+        self.table_list = []
         invoice_table = QTableWidget()
+        self.table_list.append(invoice_table)
         invoice_table.setMinimumSize(QtCore.QSize(0, 200))
         invoice_table.setSortingEnabled(True)
 
-        label_test = QLabel(f"**{i_create_date}**")
-        label_test.setTextFormat(QtCore.Qt.MarkdownText)
+        create_date = QLabel(f"**Hóa đơn ngày: {f'{i_create_date}'}**")
+        create_date.setTextFormat(QtCore.Qt.MarkdownText)
 
-        self.vbox.addWidget(label_test)
-        self.vbox.addWidget(invoice_table)
+        self.grid.addWidget(create_date)
+        self.grid.addWidget(invoice_table)
 
         # Insert data into this template
         labels = [
@@ -241,37 +289,29 @@ class MainWindow(QtWidgets.QMainWindow):
             "Đơn giá (VND)",
             "Số lượng",
             "Tổng (Đơn giá * Số lượng) VND",
-            # "Ngày mua",
         ]
         self.update_table(
             invoice_table, Invoice().getAllProductFromInvoice(i_id), labels
         )
 
     def update_total(self, name):
-        i = Invoice()
-        [(total_p, total_interest)] = i.updateTotal(name)
+        [(total_p, total_interest)] = Invoice().getTotal(name)
 
         # if Customer did bought anything.
         if total_interest is None and total_p is None:
             [(total_p, total_interest)] = [(0, 0)]
-        """
-        totals = Invoice().updateTotal(name)    #OUTPUT: [(44925000.0, 23221314.99940131)]
-        print(totals[0][0])                     #OUTPUT: 44925000.0
-        print(totals[0][1])                     #OUTPUT: 23221314.99940131
-        """
 
         # Setup UI
-        self.ui.total_p.setText(f"# {i.seperated_by.format(total_p)} VND")
-        self.ui.total_interest.setText(f"# {i.seperated_by.format(total_interest)} VND")
-        self.ui.total.setText(
-            f"# {i.seperated_by.format(total_p + total_interest)} VND"
-        )
+        # self.ui.total_p.setText(f"# {i.seperated_by.format(total_p)} VND")
+        # self.ui.total_interest.setText(f"# {i.seperated_by.format(total_interest)} VND")
+        # self.ui.total.setText(
+        #     f"# {i.seperated_by.format(total_p + total_interest)} VND"
+        # )
 
     def update_table(self, table, invoice_data, labels):
         table.setRowCount(0)
         table.setColumnCount(len(labels))
         table.setHorizontalHeaderLabels(labels)
-        table
 
         # table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents)
 
@@ -287,9 +327,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_cus_search_bar(self, text):
         self.ui.cus_list.clear()
-        cus = Customer()
-        datas = cus.get_name(value=text)
-        for data in datas:
+        for data in Customer().get_name(value=text):
             self.ui.cus_list.addItems(data)
 
 

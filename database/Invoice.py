@@ -45,12 +45,32 @@ class Invoice(Database):
         )
         return self.mycursor.fetchall()
 
+    def getTotalFromInvoice(self, invoice_id: int):
+        """
+
+        INPUT: invoice_id
+
+        RETURN: sum of all product in invoice, number of unpaid months.
+        """
+        query = f"""
+                    SELECT	
+                            sum(i_d.quantity * i_d.curr_unit_price) AS total,
+			                (DATEDIFF(CURRENT_TIMESTAMP(), i.create_date)/30) AS mons_unpaid
+                    FROM invoice_detail AS i_d
+                    JOIN invoice AS i ON i.id = i_d.FK_i_id
+                    JOIN product AS p ON p.product_id = i_d.FK_p_id
+                    WHERE i.id = {invoice_id}
+                    """
+        self.mycursor.execute(query)
+        return self.mycursor.fetchall()
+
     def getAllProductFromInvoice(self, invoice_id: int):
         """
         INPUT invoice.id
-        
-        RETURN all products with invoice.id
+
+        RETURN p_name, unit_price, quantity, sum(unit_price*quantity)
         """
+
         query = f"""
                 SELECT	p.name AS p_name, 
                         FORMAT(i_d.curr_unit_price, 0), 
@@ -61,13 +81,14 @@ class Invoice(Database):
                 JOIN product AS p ON p.product_id = i_d.FK_p_id
                 WHERE i.id = {invoice_id}
                 """
+
         self.mycursor.execute(query)
         return self.mycursor.fetchall()
-        
+
     def addP2Invoice(self, query_data: dict):
         # INSERT AND UPDATE NEW PRICE
         i = Invoice()
-        insert_query = f"""INSERT INTO {i.table}    ({i.table}.{i.column_FK_cus_id}, 
+        insert_query = f"""INSERT INTO {i.table}    ({Invoice().table}.{i.column_FK_cus_id}, 
                                                     {i.table}.{i.column_FK_p_id}, 
                                                     {i.table}.{i.column_curr_unit_price}, 
                                                     {i.table}.{i.column_quantity},
@@ -81,7 +102,7 @@ class Invoice(Database):
         self.mycursor.execute(insert_query)
         self.mydb.commit()
 
-    def updateTotal(self, name: str):
+    def getTotal(self, name: str):
         i = Invoice()
         query = f"""
             SELECT

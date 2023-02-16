@@ -32,8 +32,7 @@ class Product(Database):
             FROM {self.table} 
             WHERE {self.column_name} LIKE '%{value}%'"""
         )
-        myresult = self.mycursor.fetchall()
-        return myresult
+        return self.mycursor.fetchall()
 
     def add(self, infos):
         query = f"""INSERT INTO {self.table} ({self.column_name}, {self.column_unit_price}) 
@@ -42,7 +41,9 @@ class Product(Database):
         self.mydb.commit()
 
     def get_per_product(self, name: str):
-        query = f"""SELECT {self.column_name}, {self.column_unit_price}, {self.column_location} FROM {self.table}
+        query = f"""SELECT {self.column_name},
+                    FORMAT({self.column_unit_price}, 0), 
+                    {self.column_location} FROM {self.table}
                     WHERE {self.column_name} = '{name}'
                     LIMIT 1
                 """

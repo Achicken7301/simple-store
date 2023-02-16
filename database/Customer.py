@@ -7,7 +7,7 @@ class Customer(Database):
         self.table = "customer"
         self.column_id = "id"
         self.column_name = "name"
-        
+
         self.connect()
         self.mycursor = self.mydb.cursor()
 
@@ -18,8 +18,7 @@ class Customer(Database):
                 ORDER BY {self.column_name} ASC
             """
         )
-        myresult = self.mycursor.fetchall()
-        return myresult
+        return self.mycursor.fetchall()
 
     def get_name(self, value: str):
         self.mycursor.execute(
@@ -28,10 +27,9 @@ class Customer(Database):
                 WHERE {self.column_name} LIKE '%{value}%'
             """
         )
-        myresult = self.mycursor.fetchall()
-        return myresult
-    
-    def get_per_cus(self, name:str):
+        return self.mycursor.fetchall()
+
+    def get_per_cus(self, name: str):
         self.mycursor.execute(
             f"""
                 SELECT {self.column_name} FROM {self.table} 
@@ -39,10 +37,9 @@ class Customer(Database):
                 LIMIT 1
             """
         )
-        myresult = self.mycursor.fetchall()
-        return myresult
+        return self.mycursor.fetchall()
 
-    def add(self, infos):
-        query = f"""INSERT INTO {self.table} ({self.column_name}) VALUE ('{infos["name"]}')"""
+    def add_cus(self, infos):
+        query = f"""INSERT INTO {Customer().table} ({self.column_name}) VALUE ('{infos["name"]}')"""
         self.mycursor.execute(query)
         self.mydb.commit()

@@ -32,4 +32,4 @@ class AddCusView(QtWidgets.QDialog):
 
     def add(self, cus_infos: dict):
         cus = Customer()
-        cus.add(cus_infos)
+        cus.add_cus(cus_infos)

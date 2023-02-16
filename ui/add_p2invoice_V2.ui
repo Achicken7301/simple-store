@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>527</width>
-    <height>193</height>
+    <width>463</width>
+    <height>210</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,16 +24,20 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="p_name_input"/>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>**Số lượng**</string>
+   <item row="0" column="2" rowspan="7">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="textFormat">
-      <enum>Qt::MarkdownText</enum>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QCheckBox" name="checkBox">
+     <property name="text">
+      <string>Ngày mới</string>
      </property>
     </widget>
    </item>
@@ -47,16 +51,6 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>**Đơn giá (VND)**</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::MarkdownText</enum>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <widget class="QLineEdit" name="unit_price_input">
      <property name="font">
@@ -67,6 +61,29 @@
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLabel" name="new_unit_price_warning">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::MarkdownText</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="p_name_input"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>**Đơn giá (VND)**</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::MarkdownText</enum>
      </property>
     </widget>
    </item>
@@ -93,7 +110,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>**Giá mới (nếu có)**</string>
@@ -103,26 +120,23 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="new_unit_price_input"/>
-   </item>
-   <item row="5" column="1">
-    <widget class="QLabel" name="new_unit_price_warning">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
      <property name="text">
-      <string/>
+      <string>**Số lượng**</string>
      </property>
      <property name="textFormat">
       <enum>Qt::MarkdownText</enum>
      </property>
     </widget>
    </item>
-   <item row="0" column="2" rowspan="5">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   <item row="6" column="1">
+    <widget class="QLineEdit" name="new_unit_price_input"/>
+   </item>
+   <item row="5" column="1">
+    <widget class="QDateTimeEdit" name="dateTimeEdit">
+     <property name="enabled">
+      <bool>false</bool>
      </property>
     </widget>
    </item>

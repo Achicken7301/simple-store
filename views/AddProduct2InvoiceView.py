@@ -43,10 +43,8 @@ class AddProduct2Invoice(QtWidgets.QDialog):
         r = self.p.get_per_product(p_name)
         if len(r):
             self.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
-            p_unit_price = r[0][1]
-            self.ui.unit_price_input.setText(
-                self.p.seperated_by.format(float(p_unit_price))
-            )
+            [(_, price, _)] = r
+            self.ui.unit_price_input.setText(price)
 
             # Clear new_unit_price value
             self.ui.new_unit_price_input.clear()
