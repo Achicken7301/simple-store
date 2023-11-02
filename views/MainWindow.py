@@ -12,6 +12,9 @@ from PyQt5.QtWidgets import (
 )
 
 import docx
+import threading
+import os
+import datetime
 
 # Load ui
 from ui.ui_main import Ui_MainWindow
@@ -25,10 +28,8 @@ from database.Invoice import Invoice
 from views.AddCusView import AddCusView
 from views.AddProductView import AddProductView
 from views.AddProduct2InvoiceView import AddProduct2Invoice
-from views.ErrorView import WarningView
+from views.ErrorView import NotificationView
 from views.TableWidget import InvoiceTable
-
-
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -40,12 +41,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         """
-        CUSTOMER
+        CUSTOMER INIT SETUP
         """
         # Load all cus data
-        cus = Customer()
-        datas = cus.get_all()
-        for d in datas:
+        for d in Customer().get_all():
             self.ui.cus_list.addItems(d)
 
         # search user bar
@@ -57,7 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.add_cus.clicked.connect(self.on_add_cus)
 
         """
-        PRODUCT
+        PRODUCT INIT SETUP
         """
         # Load product data
         product = Product()
@@ -73,11 +72,16 @@ class MainWindow(QtWidgets.QMainWindow):
         # Add product btn
         self.ui.add_p.clicked.connect(self.on_add_p)
 
-        """INVOICE
+        """
+        INVOICE INIT SETUP
         """
         self.cus_choosed = False
         self.ui.add_p2invoice.clicked.connect(self.on_add_p2invoice)
-        self.ui.export2pdf.clicked.connect(self.on_export2pdf)
+        self.ui.export2pdf.clicked.connect(self.start_on_export2pdf_thread)
+
+    def start_on_export2pdf_thread(self):
+        self.export2pdf_thread = threading.Thread(target=self.on_export2pdf)
+        self.export2pdf_thread.start()
 
     def on_export2pdf(self):
         # Create an instance of a word document
@@ -121,10 +125,24 @@ class MainWindow(QtWidgets.QMainWindow):
                 f"Tổng tiền trong ngày: {Invoice().seperated_by.format(total_p)} VND \t Tiền lãi: {Invoice().seperated_by.format(float(total_p) * float(months)* Invoice().interest_rate)} VND"
             )
         # Now save the document to a location
-        doc.save(
-            "D:\\banhb\Documents\Projects\\2023\simple-store\docx template\Invoice.docx"
-        )
+
+        # Check if exist directory
+        if not os.path.exists("Profies/"):
+            os.mkdir("Profies/")
+        elif not os.path.exists(f"Profies/{self.cus_name}"):
+            os.mkdir(f"Profies/{self.cus_name}")
+
+        # filename: dd-mm-YYYY hh:mm:ss
+        name_format = datetime.datetime.now().strftime("%x %X").replace("/", "-")
+        name_format = name_format.replace(":", "-")
+        filename = name_format + ".docx"
+        filename = f"{self.cus_name} {filename}"
+
+        doc.save(f"Profies/{self.cus_name}/{filename}")
         print("EXPORT SUCCESFULLY")
+        self.ui.mainwindow_status.setText(
+            f"Status: Export customer {self.cus_name} successfully!!!"
+        )
 
     def on_add_p2invoice(self):
         # Create a buffer for query
@@ -158,7 +176,7 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 print("Cancel")
         else:
-            WarningView(
+            NotificationView().WarningView(
                 "Vui lòng chọn khách hàng!!!\nNhấp chuột 2 lần vào bảng danh sách khách hàng."
             )
 
@@ -184,6 +202,9 @@ class MainWindow(QtWidgets.QMainWindow):
     """
 
     def on_add_p(self):
+        """
+        This is the docstring method
+        """
         print("add_p clicked")
         dlg = AddProductView()
         dlg.ui.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
@@ -227,7 +248,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Cancel")
 
     def cus_delete(self):
-        WarningView(
+        NotificationView().WarningView(
             "Xóa khách hàng sẽ xóa hết tất cả hóa đơn liên quan\nBạn có chắc chắn không?"
         )
 
@@ -264,28 +285,17 @@ class MainWindow(QtWidgets.QMainWindow):
         widget = QWidget()
         self.grid = QGridLayout()
 
-        # Manage multiples layout with this
-        self.table_list = []
-        self.add_btn_list = []
-        self.update_btn_list = []
-        self.remove_btn_list = []
-        self.handleCellChanged_list = []
         # Create view
         for invoice_id, invoice_create_date in invoices:
             self.createTemplate(invoice_id, invoice_create_date)
-
-        # table_list
-        for i in range(len(self.table_list)):
-            # self.table_list[i].cellChanged.connect(self.handleCellChanged)
-            self.table_list[i].cellClicked.connect(self.handleCellChanged)
 
         widget.setLayout(self.grid)
         self.ui.scroll_infos.setWidget(widget)
 
     def createTemplate(self, i_id, i_create_date):
         # Table setup
-        invoice_table = InvoiceTable(i_id)        
-        invoice_table.setMinimumSize(QtCore.QSize(0, 200))
+        invoice_table = InvoiceTable(i_id)
+        invoice_table.setMinimumSize(QtCore.QSize(0, 500))
         invoice_table.setSortingEnabled(True)
 
         create_date = QLabel(f"**Hóa đơn ngày: {f'{i_create_date}'}**")

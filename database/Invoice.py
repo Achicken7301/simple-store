@@ -33,14 +33,13 @@ class Invoice(Database):
 
         Return [(invoice.id, invoice.create_date)]
         """
-        i = Invoice()
         self.mycursor.execute(
-            f"""SELECT distinct i.id AS invoice_id, i.create_date
+            f"""SELECT distinct {Invoice().table}.id AS invoice_id, {Invoice().table}.create_date
                 FROM invoice_detail AS i_d
-                JOIN invoice AS i ON i.id = i_d.FK_i_id
-                JOIN customer AS c ON c.id = i.cus_id
-                WHERE c.name = '{cus_name}'
-                ORDER BY i.create_date ASC
+                JOIN invoice AS {Invoice().table} ON {Invoice().table}.id = i_d.FK_i_id
+                JOIN customer AS c ON c.id = {Invoice().table}.cus_id
+                WHERE c.name = '{cus_name}' AND {Invoice().table}.pay_date IS NULL
+                ORDER BY {Invoice().table}.create_date ASC
                 """
         )
         return self.mycursor.fetchall()

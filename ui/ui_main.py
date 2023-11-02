@@ -19,9 +19,9 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.status = QtWidgets.QLabel(self.centralwidget)
-        self.status.setObjectName("status")
-        self.gridLayout.addWidget(self.status, 2, 0, 1, 1)
+        self.mainwindow_status = QtWidgets.QLabel(self.centralwidget)
+        self.mainwindow_status.setObjectName("mainwindow_status")
+        self.gridLayout.addWidget(self.mainwindow_status, 2, 0, 1, 1)
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName("tabWidget")
         self.tab = QtWidgets.QWidget()
@@ -195,7 +195,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.status.setText(_translate("MainWindow", "Status"))
+        self.mainwindow_status.setText(_translate("MainWindow", "Status"))
         self.add_p2invoice.setText(_translate("MainWindow", "Thêm sản phẩm vào Hóa đơn"))
         self.pushButton.setText(_translate("MainWindow", "Chỉnh sửa hóa đơn"))
         self.pushButton_2.setText(_translate("MainWindow", "Xóa hóa đơn"))

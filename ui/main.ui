@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="2" column="0">
-     <widget class="QLabel" name="status">
+     <widget class="QLabel" name="mainwindow_status">
       <property name="text">
        <string>Status</string>
       </property>

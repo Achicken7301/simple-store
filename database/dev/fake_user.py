@@ -1,9 +1,9 @@
 from faker import Faker
 import mysql.connector
 
-faker = Faker(["vi_VN", 'ja_JP'])
-
-print(faker.name())
+faker = Faker(locale=['vi_VN'])
+for _ in range(10):
+    print(f"{faker.first_name()} {faker.last_name()}")
 
 # mydb = mysql.connector.connect(
 #     host="localhost", user="root", password="", database="store"
